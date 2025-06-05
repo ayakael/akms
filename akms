@@ -124,7 +124,7 @@ MAKEFLAGS="-j$(nproc)"
 
 readonly BUILD_USER=${build_user:-akms}
 readonly BWRAP_OPTS=${bubblewrap_opts:-}
-readonly MAKEDEPENDS=${makedepends:-build-base}
+readonly MAKEDEPENDS=${makedepends:-}
 readonly MAKEFLAGS
 readonly MODULES_DEST_PATH=${modules_dest_path:-/kernel/extra/akms}
 readonly MODULES_SRC_DIR=${modules_srcdir:-/usr/src}
@@ -524,6 +524,11 @@ install_makedepends() {
 	if [ -d "$TEMP_DIR"/overlay ]; then
 		build_root="$TEMP_DIR/overlay"
 		apk_opts="--root $build_root"
+	fi
+
+	# if any of these files are missing, it means `build-base` needs installing
+	if [ ! -f "/usr/bin/readelf" ] || [ ! -f "/usr/bin/file" ] || [ ! -f "/usr/bin/gcc" ] || [ ! -f "/usr/bin/g++" ] || [ ! -f "/usr/bin/make" ] || [ ! -f "/usr/bin/patch" ]; then
+		makedepends="$makedepends build-base"
 	fi
 
 	# If all $makedepends are installed, empty $makedepends.
